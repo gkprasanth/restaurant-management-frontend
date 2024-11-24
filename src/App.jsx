@@ -1,0 +1,27 @@
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { useParams } from "react-router-dom"; // Import the useParams hook
+import LoginPage from "./pages/LoginPage";
+import MenuPage from "./pages/MenuPage";
+import OrdersPage from "./pages/OrdersPage"; // Frontend orders page for a specific table
+import KitchenOrdersPage from "./pages/Kitchen";
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/:tableNumber/menu" element={<MenuPage />} />
+        <Route path="/:tableNumber/orders" element={<OrdersWithTable />} /> {/* Orders page for a specific table */}
+        <Route path="/kitchen" element={<KitchenOrdersPage />} /> {/* Kitchen orders page */}
+      </Routes>
+    </Router>
+  );
+}
+
+// A new wrapper component to extract the tableNumber from the URL and pass it as a prop to OrdersPage
+function OrdersWithTable() {
+  const { tableNumber } = useParams(); // Access tableNumber from the URL
+  return <OrdersPage tableNumber={tableNumber} />; // Pass tableNumber as prop to OrdersPage
+}
+
+export default App;

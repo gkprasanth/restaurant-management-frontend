@@ -7,7 +7,7 @@ const SignupPage = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [tableNumber, setTableNumber] = useState(""); // Only for customers
+//   const [tableNumber, setTableNumber] = useState("");  
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const navigate = useNavigate();
@@ -16,15 +16,15 @@ const SignupPage = () => {
     e.preventDefault();
 
     // Ensure table number is provided only for customers
-    if (!tableNumber) {
-      setError("Table number is required for customers.");
-      return;
-    }
+    // if (!tableNumber) {
+    //   setError("Table number is required for customers.");
+    //   return;
+    // }
 
     try {
       const response = await axios.post(
         "https://restaurant-management-backend-qgwe.onrender.com/api/users/register", 
-        { name, email, password, tableNumber }  
+        { name, email, password }  
       );
       
       setSuccess(response.data.message);
@@ -75,14 +75,14 @@ const SignupPage = () => {
         />
 
         {/* Table Number - Only for customers */}
-        <TextField
+        {/* <TextField
           label="Table Number"
           type="number"
           fullWidth
           margin="normal"
           value={tableNumber}
           onChange={(e) => setTableNumber(e.target.value)}
-        />
+        /> */}
 
         <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>
           Sign Up

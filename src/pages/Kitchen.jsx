@@ -8,7 +8,7 @@ const KitchenOrdersPage = () => {
     useEffect(() => {
         const fetchOrders = async () => {
             try {
-                const response = await axios.get("https://restaurant-management-backend-qgwe.onrender.com/api/orders");
+                const response = await axios.get("https://restaurant-management-backend-qgwe.onrender.com/orders");
                 setOrders(response.data.data); // Fetch all orders
             } catch (error) {
                 console.error("Error fetching orders:", error);

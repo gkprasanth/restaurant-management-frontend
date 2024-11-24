@@ -9,7 +9,7 @@ const OrdersPage = ({ tableNumber }) => {
     useEffect(() => {
         const fetchOrders = async () => {
             try {
-                const response = await axios.get(`http://localhost:5000/api/orders/table/${tableNumber}`);
+                const response = await axios.get(`https://restaurant-management-backend-qgwe.onrender.com/api/orders/table/${tableNumber}`);
                 setOrders(response.data.data); // Assuming the API returns the orders in the `data` property
                 setLoading(false);
             } catch (err) {

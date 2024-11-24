@@ -8,7 +8,7 @@ const KitchenOrdersPage = () => {
     useEffect(() => {
         const fetchOrders = async () => {
             try {
-                const response = await axios.get("http://localhost:5000/api/orders");
+                const response = await axios.get("https://restaurant-management-backend-qgwe.onrender.com/api/orders");
                 setOrders(response.data.data); // Fetch all orders
             } catch (error) {
                 console.error("Error fetching orders:", error);
@@ -30,7 +30,7 @@ const KitchenOrdersPage = () => {
     const handleStatusUpdate = async (orderId, status) => {
         try {
             const response = await axios.put(
-                `http://localhost:5000/api/orders/${orderId}/status`,
+                `https://restaurant-management-backend-qgwe.onrender.com/api/orders/${orderId}/status`,
                 { status },
                 { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
             );

@@ -23,7 +23,7 @@ const MenuPage = () => {
     useEffect(() => {
         const fetchMenu = async () => {
             try {
-                const response = await axios.get("http://localhost:5000/menu");
+                const response = await axios.get("https://restaurant-management-backend-qgwe.onrender.com/menu");
                 setMenuItems(response.data);
                 const token = localStorage.getItem("token");
                 setToken(token);
@@ -37,7 +37,7 @@ const MenuPage = () => {
     // Fetch orders for the current table
     const fetchOrders = async () => {
         try {
-            const response = await axios.get(`http://localhost:5000/orders/${tableNumber}`, {
+            const response = await axios.get(`https://restaurant-management-backend-qgwe.onrender.com/orders/${tableNumber}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -72,7 +72,7 @@ const MenuPage = () => {
             };
     
             // Sending the order data to the backend
-            const response = await axios.post("http://localhost:5000/orders", orderData, {
+            const response = await axios.post("https://restaurant-management-backend-qgwe.onrender.com/orders", orderData, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },

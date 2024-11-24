@@ -4,12 +4,14 @@ import LoginPage from "./pages/LoginPage";
 import MenuPage from "./pages/MenuPage";
 import OrdersPage from "./pages/OrdersPage"; // Frontend orders page for a specific table
 import KitchenOrdersPage from "./pages/Kitchen";
+import SignupPage from "./pages/SignUpPage";
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<LoginPage />} />
+        <Route path="/register" element={<SignupPage />} />
         <Route path="/:tableNumber/menu" element={<MenuPage />} />
         <Route path="/:tableNumber/orders" element={<OrdersWithTable />} /> {/* Orders page for a specific table */}
         <Route path="/kitchen" element={<KitchenOrdersPage />} /> {/* Kitchen orders page */}

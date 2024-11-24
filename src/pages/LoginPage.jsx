@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Box, TextField, Button, Typography } from "@mui/material";
 
@@ -86,6 +86,13 @@ const LoginPage = () => {
           Login
         </Button>
       </form>
+
+
+      <Link to={'/register'} style={{ textDecoration: 'none' }}>
+        <p style={{ color: '#007BFF', cursor: 'pointer', fontWeight: 'bold' }}>
+          No account? Register Here
+        </p>
+      </Link>
     </Box>
   );
 };

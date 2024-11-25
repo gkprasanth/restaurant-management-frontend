@@ -47,7 +47,9 @@ const MenuPage = () => {
     }, []);
 
     const fetchOrders = async () => {
+        setOpenOrdersModal(false); // Ensure modal is closed before fetching orders
         try {
+            console.log("Fetching orders for table:", tableNumber); // Debug log
             const response = await axios.get(
                 `https://restaurant-management-backend-qgwe.onrender.com/orders/${tableNumber}`,
                 {
@@ -56,23 +58,29 @@ const MenuPage = () => {
                     },
                 }
             );
-            setOrders(response.data.data);
-            setOpenOrdersModal(true);
+            setOrders(response.data.data); // Assuming response data structure
+            setOpenOrdersModal(true); // Open orders modal
         } catch (error) {
             console.error(
                 "Error fetching orders:",
                 error.response ? error.response.data.message : error.message
             );
+            alert("Error fetching orders. Please try again.");
         }
     };
 
     const handlePlaceOrder = async () => {
-        try {
-            if (!customerName.trim()) {
-                alert("Please enter your name.");
-                return;
-            }
+        if (!customerName.trim()) {
+            alert("Please enter your name.");
+            return;
+        }
 
+        if (order.length === 0) {
+            alert("Your order is empty.");
+            return;
+        }
+
+        try {
             const orderData = {
                 customer: customerName,
                 tableNumber: tableNumber,
@@ -86,6 +94,8 @@ const MenuPage = () => {
                 customizations: customization,
             };
 
+            console.log("Placing order with data:", orderData);
+
             const response = await axios.post(
                 "https://restaurant-management-backend-qgwe.onrender.com/orders",
                 orderData,
@@ -97,13 +107,15 @@ const MenuPage = () => {
             );
 
             console.log("Order placed successfully:", response.data);
-            setOrder([]);
-            setOpenModal(false);
+            setOrder([]); // Clear the order
+            setOpenModal(false); // Close the modal
         } catch (error) {
             console.error(
                 "Error placing order:",
                 error.response ? error.response.data.message : error.message
             );
+            alert("Error placing order. Please try again.");
+            setOpenModal(false);
         }
     };
 
@@ -268,6 +280,86 @@ const MenuPage = () => {
             >
                 View Orders
             </Button>
+
+            {/* Modal for placing an order */}
+            <Dialog open={openModal} onClose={() => setOpenModal(false)}>
+                <DialogTitle>Place Your Order</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        label="Customer Name"
+                        fullWidth
+                        value={customerName}
+                        onChange={(e) => setCustomerName(e.target.value)}
+                        margin="normal"
+                    />
+                    <TextField
+                        label="Customization"
+                        fullWidth
+                        value={customization}
+                        onChange={(e) => setCustomization(e.target.value)}
+                        margin="normal"
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenModal(false)} color="primary">
+                        Cancel
+                    </Button>
+                    <Button onClick={handlePlaceOrder} color="primary">
+                        Place Order
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Modal for viewing orders */}
+            <Dialog open={openOrdersModal} onClose={() => setOpenOrdersModal(false)} maxWidth="md" fullWidth>
+                <DialogTitle>Orders for Table {tableNumber}</DialogTitle>
+                <DialogContent sx={{ maxHeight: '60vh', overflowY: 'auto' }}>
+                    {orders.length > 0 ? (
+                        <>
+                            {orders.map((order, index) => (
+                                <Box key={index} sx={{ mb: 3, p: 2, borderBottom: '1px solid #ccc' }}>
+                                    <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                                        Order {index + 1}
+                                    </Typography>
+                                    <Typography variant="body2" sx={{ mb: 1 }}>
+                                        <strong>Customer:</strong> {order.customer}
+                                    </Typography>
+                                    <Typography variant="body2" sx={{ mb: 1 }}>
+                                        <strong>Items:</strong>
+                                        <ul style={{ margin: 0, paddingLeft: 20 }}>
+                                            {order.items.map((item, i) => (
+                                                <li key={i}>
+                                                    {item.name} (x{item.quantity})
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </Typography>
+                                    <Typography variant="body2" sx={{ mb: 1 }}>
+                                        <strong>Customizations:</strong> {order.customizations || 'None'}
+                                    </Typography>
+                                    <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                                        Total: {order.totalPrice} INR
+                                    </Typography>
+                                </Box>
+                            ))}
+
+                            {/* Calculate and display the total combined bill */}
+                            <Box sx={{ mt: 3, padding: '10px 0', borderTop: '1px solid #ccc' }}>
+                                <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+                                    Total Combined Bill: {orders.reduce((total, order) => total + parseFloat(order.totalPrice), 0).toFixed(2)} INR
+                                </Typography>
+                            </Box>
+                        </>
+                    ) : (
+                        <Typography>No orders available.</Typography>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenOrdersModal(false)} color="primary">
+                        Close
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 };

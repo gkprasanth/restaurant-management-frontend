@@ -40,25 +40,6 @@ const ReceptionPage = () => {
     fetchOrders();
   }, []);
 
-  const handleStatusUpdate = async (orderId, status) => {
-    try {
-      const response = await axios.put(
-        `https://restaurant-management-backend-qgwe.onrender.com/orders/${orderId}/status`,
-        { status },
-        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-      );
-      setOrders((prevOrders) =>
-        prevOrders.map((order) =>
-          order._id === orderId
-            ? { ...order, status: response.data.data.status }
-            : order
-        )
-      );
-    } catch (error) {
-      console.error("Error updating order status:", error);
-    }
-  };
-
   const handleClearTableOrders = async (tableNumber) => {
     try {
       await axios.delete(
@@ -86,11 +67,12 @@ const ReceptionPage = () => {
   };
 
   const handleGenerateBill = () => {
-    const totalAmount = orders.reduce(
+    // Calculate total price for the selected table only
+    const totalAmountForSelectedTable = filteredOrders.reduce(
       (sum, order) => sum + order.totalPrice,
       0
     );
-    setPaymentAmount(totalAmount);
+    setPaymentAmount(totalAmountForSelectedTable); // Set the payment amount for the selected table
     setOpenPaymentModal(true); // Open the payment modal
   };
 
@@ -290,10 +272,10 @@ const ReceptionPage = () => {
           </Button>
           <Button
             onClick={handlePaymentSubmit}
-            color="success"
+            color="primary"
             variant="contained"
           >
-            Pay Now
+            Submit Payment
           </Button>
         </DialogActions>
       </Dialog>

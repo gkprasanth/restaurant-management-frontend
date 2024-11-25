@@ -1,20 +1,30 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom"; // Import useNavigate
 import axios from "axios";
-import { Box, Typography, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
+import {
+    Box,
+    Typography,
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    TextField,
+} from "@mui/material";
 import MenuCard from "../components/MenuCard";
 
 const MenuPage = () => {
     const { tableNumber } = useParams();
+    const navigate = useNavigate(); // Initialize useNavigate
     const [menuItems, setMenuItems] = useState([]);
     const [order, setOrder] = useState([]);
     const [openModal, setOpenModal] = useState(false);
     const [customization, setCustomization] = useState("");
-    const [customerName, setCustomerName] = useState(""); // Store customer name
+    const [customerName, setCustomerName] = useState("");
     const containerRefs = useRef({});
     const [token, setToken] = useState("");
-    const [openOrdersModal, setOpenOrdersModal] = useState(false); // State for showing orders modal
-    const [orders, setOrders] = useState([]); // State to store orders for the table
+    const [openOrdersModal, setOpenOrdersModal] = useState(false);
+    const [orders, setOrders] = useState([]);
 
     const getTotalPrice = () => {
         return order.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2);
@@ -23,7 +33,9 @@ const MenuPage = () => {
     useEffect(() => {
         const fetchMenu = async () => {
             try {
-                const response = await axios.get("https://restaurant-management-backend-qgwe.onrender.com/menu");
+                const response = await axios.get(
+                    "https://restaurant-management-backend-qgwe.onrender.com/menu"
+                );
                 setMenuItems(response.data);
                 const token = localStorage.getItem("token");
                 setToken(token);
@@ -34,22 +46,25 @@ const MenuPage = () => {
         fetchMenu();
     }, []);
 
-    // Fetch orders for the current table
     const fetchOrders = async () => {
         try {
-            const response = await axios.get(`https://restaurant-management-backend-qgwe.onrender.com/orders/${tableNumber}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-    
-            setOrders(response.data.data); // Access orders from response
+            const response = await axios.get(
+                `https://restaurant-management-backend-qgwe.onrender.com/orders/${tableNumber}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+            setOrders(response.data.data);
             setOpenOrdersModal(true);
         } catch (error) {
-            console.error("Error fetching orders:", error.response ? error.response.data.message : error.message);
+            console.error(
+                "Error fetching orders:",
+                error.response ? error.response.data.message : error.message
+            );
         }
     };
-    
 
     const handlePlaceOrder = async () => {
         try {
@@ -57,9 +72,9 @@ const MenuPage = () => {
                 alert("Please enter your name.");
                 return;
             }
-    
+
             const orderData = {
-                customer: customerName, // Dynamic customer name
+                customer: customerName,
                 tableNumber: tableNumber,
                 items: order.map((item) => ({
                     name: item.name,
@@ -70,32 +85,33 @@ const MenuPage = () => {
                 totalPrice: getTotalPrice(),
                 customizations: customization,
             };
-    
-            // Sending the order data to the backend
-            const response = await axios.post("https://restaurant-management-backend-qgwe.onrender.com/orders", orderData, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-    
+
+            const response = await axios.post(
+                "https://restaurant-management-backend-qgwe.onrender.com/orders",
+                orderData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
             console.log("Order placed successfully:", response.data);
-    
-            // Reset the orders state (clear the order state)
-            setOrder([]); // This clears the order array (reset the state)
-    
-            // Close the modal after successful order
+            setOrder([]);
             setOpenModal(false);
         } catch (error) {
-            console.error("Error placing order:", error.response ? error.response.data.message : error.message);
+            console.error(
+                "Error placing order:",
+                error.response ? error.response.data.message : error.message
+            );
         }
     };
-    
-    
 
     const handleAddToOrder = (item) => {
         const updatedOrder = [...order];
         const existingItem = updatedOrder.find(
-            (orderItem) => orderItem.name === item.name && orderItem.customizations === customization
+            (orderItem) =>
+                orderItem.name === item.name && orderItem.customizations === customization
         );
         if (existingItem) {
             existingItem.quantity += 1;
@@ -119,6 +135,11 @@ const MenuPage = () => {
         acc[category].push(item);
         return acc;
     }, {});
+
+    const handleLogout = () => {
+        localStorage.removeItem("token"); // Clear the token
+        navigate("/"); // Redirect to the home route
+    };
 
     return (
         <Box
@@ -160,9 +181,30 @@ const MenuPage = () => {
                 Menu for Table {tableNumber}
             </Typography>
 
+            {/* Logout Button */}
+            <Button
+                variant="contained"
+                onClick={handleLogout}
+                sx={{
+                    position: "absolute",
+                    top: 20,
+                    right: 20,
+                    backgroundColor: "#FF1744",
+                    "&:hover": {
+                        backgroundColor: "#D50000",
+                    },
+                }}
+            >
+                Logout
+            </Button>
+
             {Object.keys(groupedMenuItems).map((category) => (
                 <Box key={category} sx={{ mb: 6 }}>
-                    <Typography variant="h5" gutterBottom sx={{ fontWeight: 600, color: "#222", textTransform: "uppercase" }}>
+                    <Typography
+                        variant="h5"
+                        gutterBottom
+                        sx={{ fontWeight: 600, color: "#222", textTransform: "uppercase" }}
+                    >
                         {category}
                     </Typography>
                     <Box
@@ -193,6 +235,7 @@ const MenuPage = () => {
                 </Box>
             ))}
 
+            {/* Place Order and View Orders Buttons */}
             {order.length > 0 && (
                 <Button
                     variant="contained"
@@ -210,8 +253,6 @@ const MenuPage = () => {
                     Place Order ({getTotalPrice()} INR)
                 </Button>
             )}
-
-            {/* View Orders Button */}
             <Button
                 variant="contained"
                 onClick={fetchOrders}
@@ -227,79 +268,6 @@ const MenuPage = () => {
             >
                 View Orders
             </Button>
-
-            {/* Modal for confirmation */}
-            <Dialog open={openModal} onClose={() => setOpenModal(false)}>
-                <DialogTitle>Order Confirmation</DialogTitle>
-                <DialogContent>
-                    {/* Customer Name Field */}
-                    <TextField
-                        label="Your Name"
-                        variant="outlined"
-                        fullWidth
-                        value={customerName}
-                        onChange={(e) => setCustomerName(e.target.value)}
-                        sx={{ mb: 2 }}
-                    />
-                    <Typography variant="h6" sx={{ mb: 2 }}>
-                        Are you sure you want to place this order?
-                    </Typography>
-                    <Box>
-                        {order.map((item, index) => (
-                            <Box key={index}>
-                                <Typography>
-                                    {item.name} (x{item.quantity}) - {item.price * item.quantity} INR
-                                </Typography>
-                            </Box>
-                        ))}
-                    </Box>
-                    <TextField
-                        label="Additional Customization"
-                        variant="outlined"
-                        fullWidth
-                        value={customization}
-                        onChange={(e) => setCustomization(e.target.value)}
-                        sx={{ mt: 2 }}
-                    />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setOpenModal(false)} color="primary">
-                        Cancel
-                    </Button>
-                    <Button onClick={handlePlaceOrder} color="secondary">
-                        Confirm
-                    </Button>
-                </DialogActions>
-            </Dialog>
-
-            {/* Modal for viewing orders */}
-            <Dialog open={openOrdersModal} onClose={() => setOpenOrdersModal(false)}>
-                <DialogTitle>Orders for Table {tableNumber}</DialogTitle>
-                <DialogContent>
-                    {orders.length > 0 ? (
-                        orders.map((order, index) => (
-                            <Box key={index} sx={{ mb: 2 }}>
-                                <Typography variant="h6">{order.customer}</Typography>
-                                <Typography>Items:</Typography>
-                                {order.items.map((item, idx) => (
-                                    <Typography key={idx}>
-                                        {item.name} (x{item.quantity}) - {item.price * item.quantity} INR
-                                    </Typography>
-                                ))}
-                                <Typography>Total: {order.totalPrice} INR</Typography>
-                                <Typography>Customizations: {order.customizations}</Typography>
-                            </Box>
-                        ))
-                    ) : (
-                        <Typography>No orders placed yet.</Typography>
-                    )}
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setOpenOrdersModal(false)} color="primary">
-                        Close
-                    </Button>
-                </DialogActions>
-            </Dialog>
         </Box>
     );
 };

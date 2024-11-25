@@ -44,7 +44,7 @@ const KitchenOrdersPage = () => {
   const handleStatusUpdate = async (orderId, status) => {
     try {
       const response = await axios.put(
-        `https://restaurant-management-backend-qgwe.onrender.com/api/orders/${orderId}/status`,
+        `https://restaurant-management-backend-qgwe.onrender.com/orders/${orderId}/status`,
         { status },
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );

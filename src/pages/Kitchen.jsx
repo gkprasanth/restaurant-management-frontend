@@ -14,13 +14,12 @@ import {
 const KitchenOrdersPage = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedTable, setSelectedTable] = useState(null); // Track selected table
 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await axios.get(
-          "https://restaurant-management-backend-qgwe.onrender.com/orders"
-        );
+        const response = await axios.get("https://restaurant-management-backend-qgwe.onrender.com/orders");
         setOrders(response.data.data); // Fetch all orders
         setLoading(false);
       } catch (error) {
@@ -67,27 +66,61 @@ const KitchenOrdersPage = () => {
   }
 
   return (
-    <Box sx={{ padding: 3 }}>
-      <Typography variant="h4" gutterBottom sx={{ fontWeight: "bold", marginBottom: 3 }}>
-        Kitchen Orders
-      </Typography>
-      {Object.keys(groupedOrders).length === 0 ? (
-        <Typography>No orders available for preparation.</Typography>
-      ) : (
-        Object.keys(groupedOrders).map((tableNumber) => (
-          <Box key={tableNumber} sx={{ marginBottom: 6 }}>
-            <Typography
-              variant="h5"
-              sx={{
-                fontWeight: "bold",
-                marginBottom: 2,
-                borderBottom: "2px solid #1976D2",
-                display: "inline-block",
-              }}
+    <Box sx={{ display: "flex", padding: 3 }}>
+      {/* Table Buttons Section */}
+      <Box
+        sx={{
+          width: "25%",
+          paddingRight: 2,
+          borderRight: "2px solid #ddd",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-start",
+        }}
+      >
+        <Typography variant="h5" sx={{ fontWeight: "bold", marginBottom: 3 }}>
+          Tables
+        </Typography>
+        <Box sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
+          {Object.keys(groupedOrders).map((tableNumber) => (
+            <Button
+              key={tableNumber}
+              variant="outlined"
+              color={selectedTable === tableNumber ? "primary" : "default"}
+              onClick={() => setSelectedTable(tableNumber)}
+              sx={{ marginBottom: 2, textTransform: "none" }}
             >
               Table {tableNumber}
-            </Typography>
-            {groupedOrders[tableNumber].map((order, index) => (
+            </Button>
+          ))}
+        </Box>
+      </Box>
+
+      {/* Orders Section */}
+      <Box sx={{ width: "75%", paddingLeft: 2 }}>
+        <Typography
+          variant="h4"
+          gutterBottom
+          sx={{
+            fontWeight: "bold",
+            marginBottom: 3,
+            padding: 2,
+            backgroundColor: "#1976D2",  // Background color
+            color: "#fff",  // Text color
+            borderRadius: 1,  // Rounded corners
+            textAlign: "center",  // Center align text
+            boxShadow: 2,  // Box shadow for depth
+            fontSize: "2rem",  // Larger font size for emphasis
+          }}
+        >
+          Kitchen Orders
+        </Typography>
+
+        {selectedTable ? (
+          groupedOrders[selectedTable].length === 0 ? (
+            <Typography>No orders available for preparation on this table.</Typography>
+          ) : (
+            groupedOrders[selectedTable].map((order, index) => (
               <Card
                 key={index}
                 sx={{
@@ -142,10 +175,12 @@ const KitchenOrdersPage = () => {
                   </Box>
                 </CardContent>
               </Card>
-            ))}
-          </Box>
-        ))
-      )}
+            ))
+          )
+        ) : (
+          <Typography>Select a table to view its orders.</Typography>
+        )}
+      </Box>
     </Box>
   );
 };

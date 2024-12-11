@@ -56,7 +56,7 @@ const ReceptionPage = () => {
 
   const handleClearAllTables = async () => {
     try {
-      await axios.delete("https://restaurant-management-backend-qgwe.onrender.com/orders/clear-all", {
+      await axios.delete("https://restaurant-management-backend-qgwe.onrender.com/orders", {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       setOrders([]);

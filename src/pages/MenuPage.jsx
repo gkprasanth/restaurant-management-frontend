@@ -155,6 +155,27 @@ const MenuPage = () => {
         navigate("/"); // Redirect to the home route
     };
 
+
+
+
+
+    const handleStatusUpdate = async (orderId, status) => {
+        try {
+            const response = await axios.put(
+                `https://restaurant-management-backend-qgwe.onrender.com/orders/${orderId}/status`,
+                { status },
+                { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+            );
+            setOrders((prevOrders) =>
+                prevOrders.map((order) =>
+                    order._id === orderId ? { ...order, status: response.data.data.status } : order
+                )
+            );
+        } catch (error) {
+            console.error("Error updating order status:", error);
+        }
+    };
+
     return (
         <Box
             sx={{
@@ -314,75 +335,83 @@ const MenuPage = () => {
 
             {/* Modal for viewing orders */}
             <Dialog open={openOrdersModal} onClose={() => setOpenOrdersModal(false)} maxWidth="md" fullWidth>
-    <DialogTitle>Orders for Table {tableNumber}</DialogTitle>
-    <DialogContent sx={{ maxHeight: '60vh', overflowY: 'auto' }}>
-        {orders.length > 0 ? (
-            <>
-                {orders.map((order, index) => (
-                    <Box key={index} sx={{ mb: 3, p: 2, borderBottom: '1px solid #ccc' }}>
-                        <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                            Order {index + 1}
-                        </Typography>
-                        <Typography variant="body2" sx={{ mb: 1 }}>
-                            <strong>Customer:</strong> {order.customer}
-                        </Typography>
-                        <Typography variant="body2" sx={{ mb: 1 }}>
-                            <strong>Items:</strong>
-                            <ul style={{ margin: 0, paddingLeft: 20 }}>
-                                {order.items.map((item, i) => (
-                                    <li key={i}>
-                                        {item.name} (x{item.quantity})
-                                    </li>
-                                ))}
-                            </ul>
-                        </Typography>
-                        <Typography variant="body2" sx={{ mb: 1 }}>
-                            <strong>Customizations:</strong> {order.customizations || 'None'}
-                        </Typography>
-                        <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                            Total: {order.totalPrice} INR
-                        </Typography>
-                    </Box>
-                ))}
+                <DialogTitle>Orders for Table {tableNumber}</DialogTitle>
+                <DialogContent sx={{ maxHeight: '60vh', overflowY: 'auto' }}>
+                    {orders.length > 0 ? (
+                        <>
+                            {orders.map((order, index) => (
+                                <Box key={index} sx={{ mb: 3, p: 2, borderBottom: '1px solid #ccc' }}>
+                                    <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                                        Order {index + 1}
+                                    </Typography>
+                                    <Typography variant="body2" sx={{ mb: 1 }}>
+                                        <strong>Customer:</strong> {order.customer}
+                                    </Typography>
+                                    <Typography variant="body2" sx={{ mb: 1 }}>
+                                        <strong>Items:</strong>
+                                        <ul style={{ margin: 0, paddingLeft: 20 }}>
+                                            {order.items.map((item, i) => (
+                                                <li key={i}>
+                                                    {item.name} (x{item.quantity})
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </Typography>
+                                    <Typography variant="body2" sx={{ mb: 1 }}>
+                                        <strong>Customizations:</strong> {order.customizations || 'None'}
+                                    </Typography>
+                                    <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                                        Total: {order.totalPrice} INR
+                                    </Typography>
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        onClick={() => handleStatusUpdate(order._id, "completed")}
+                                        disabled={order.status === "completed"}
+                                    >
+                                        Mark as Completed
+                                    </Button>
+                                </Box>
+                            ))}
 
-                {/* Calculate and display the total combined bill */}
-                <Box sx={{ mt: 3, padding: '10px 0', borderTop: '1px solid #ccc' }}>
-                    <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-                        Total Combined Bill: {orders.reduce((total, order) => total + parseFloat(order.totalPrice), 0).toFixed(2)} INR
-                    </Typography>
-                </Box>
+                            {/* Calculate and display the total combined bill */}
+                            <Box sx={{ mt: 3, padding: '10px 0', borderTop: '1px solid #ccc' }}>
+                                <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+                                    Total Combined Bill: {orders.reduce((total, order) => total + parseFloat(order.totalPrice), 0).toFixed(2)} INR
+                                </Typography>
+                            </Box>
 
-                {/* Bill Split Option */}
-                <Box sx={{ mt: 3, padding: '10px 0', borderTop: '1px solid #ccc' }}>
-                    <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
-                        Split Bill
-                    </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <TextField
-                            type="number"
-                            label="Number of People"
-                            variant="outlined"
-                            size="small"
-                            value={splitCount}
-                            onChange={(e) => setSplitCount(e.target.value)}
-                            inputProps={{ min: 1 }}
-                        />
-                        <Typography variant="body1">
-                            Per Person: {splitCount > 0 ? (orders.reduce((total, order) => total + parseFloat(order.totalPrice), 0) / splitCount).toFixed(2) : '0.00'} INR
-                        </Typography>
-                    </Box>
-                </Box>
-            </>
-        ) : (
-            <Typography>No orders available.</Typography>
-        )}
-    </DialogContent>
-    <DialogActions>
-        <Button onClick={() => setOpenOrdersModal(false)} color="primary">
-            Close
-        </Button>
-    </DialogActions>
-</Dialog>
+                            {/* Bill Split Option */}
+                            <Box sx={{ mt: 3, padding: '10px 0', borderTop: '1px solid #ccc' }}>
+                                <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
+                                    Split Bill
+                                </Typography>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                    <TextField
+                                        type="number"
+                                        label="Number of People"
+                                        variant="outlined"
+                                        size="small"
+                                        value={splitCount}
+                                        onChange={(e) => setSplitCount(e.target.value)}
+                                        inputProps={{ min: 1 }}
+                                    />
+                                    <Typography variant="body1">
+                                        Per Person: {splitCount > 0 ? (orders.reduce((total, order) => total + parseFloat(order.totalPrice), 0) / splitCount).toFixed(2) : '0.00'} INR
+                                    </Typography>
+                                </Box>
+                            </Box>
+                        </>
+                    ) : (
+                        <Typography>No orders available.</Typography>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenOrdersModal(false)} color="primary">
+                        Close
+                    </Button>
+                </DialogActions>
+            </Dialog>
 
         </Box>
     );

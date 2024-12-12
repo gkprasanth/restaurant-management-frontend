@@ -153,7 +153,7 @@ const ReceptionPage = () => {
                   )
                 )}
               </Grid>
-              <Button
+              {/* <Button
                 variant="contained"
                 color="error"
                 fullWidth
@@ -161,7 +161,7 @@ const ReceptionPage = () => {
                 onClick={handleClearAllTables}
               >
                 Clear All Tables
-              </Button>
+              </Button> */}
               <Button
                 variant="contained"
                 color="success"
